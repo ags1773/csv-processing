@@ -10,6 +10,6 @@
   "author": "Amogh",
   "license": "ISC",
   "dependencies": {
-    "papaparse": "^5.3.2"
+    "csvtojson": "^2.0.10"
   }
 }
