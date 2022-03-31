@@ -18,18 +18,26 @@ async function main() {
       const addendumData = addendumDataJson.find(
         (data) => data.publisher_name === publisher && data.date === date
       );
-      if (existingData && addendumData) {
-        acc += `${existingData.publisher_name},${String(
-          Number(existingData.total_requests) +
-            Number(addendumData.total_requests)
+      if (existingData || addendumData) {
+        acc += `${
+          existingData
+            ? existingData.publisher_name
+            : addendumData.publisher_name
+        },${String(
+          Number(existingData ? existingData.total_requests : 0) +
+            Number(addendumData ? addendumData.total_requests : 0)
         )},${String(
-          Number(existingData.total_bytes) + Number(addendumData.total_bytes)
+          Number(existingData ? existingData.total_bytes : 0) +
+            Number(addendumData ? addendumData.total_bytes : 0)
         )},${String(
-          Number(existingData.hit_count) + Number(addendumData.hit_count)
-        )},${existingData.date}\n`;
+          Number(existingData ? existingData.hit_count : 0) +
+            Number(addendumData ? addendumData.hit_count : 0)
+        )},${existingData ? existingData.date : addendumData.date}\n`;
+      } else {
+        console.log(`Data not found for ${publisher} on ${date}`)
       }
       return acc;
-    });
+    }, "");
     return accum;
   }, `publisher_name,total_requests,total_bytes,hit_count,date\n`);
   await fs.writeFile(pathToOutputFile, finalAssetData);
@@ -143,7 +151,7 @@ function getQtAcePubs() {
   ];
 }
 function getDates() {
-  return [
+  const temp = [
     "2022-03-01",
     "2022-03-02",
     "2022-03-03",
@@ -174,4 +182,6 @@ function getDates() {
     "2022-03-28",
     "2022-03-29",
   ];
+  const jsonStr = JSON.stringify(temp);
+  return JSON.parse(jsonStr);
 }
