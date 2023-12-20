@@ -1,33 +1,22 @@
 const csv = require("csvtojson");
 const path = require("path");
 const fs = require("fs").promises;
+// const inputFilePath = path.join(__dirname, "../io/test-redirects.csv");
+const inputFilePath = path.join(__dirname, "../io/healthday-40k-redirects.csv");
+const outputFilePath = path.join(__dirname, "../io/output.csv");
+
+const healthdayEnBaseUrl = "https://www.healthday.com";
 
 async function main() {
-  const pathToOutputFile = path.join(__dirname, "../io/output.csv");
-  const assetDataJson = await getJsonData(
-    path.join(__dirname, "../io/daily-asset-requests-for-ahead.csv")
-  );
-  const addendumDataJson = await getJsonData(
-    path.join(__dirname, "../io/addendum.csv")
-  );
-  const finalAssetData = getQtAcePubs().reduce((accum, publisher) => {
-    accum += getDates().reduce((acc, date) => {
-      const existingData = assetDataJson.find(
-        (data) => data.publisher_name === publisher && data.date === date
-      );
-      const addendumData = addendumDataJson.find(
-        (data) => data.publisher_name === publisher && data.date === date
-      );
-      if (existingData || addendumData) {
-        acc += `\n`
-      } else {
-        console.log(`Data not found for ${publisher} on ${date}`)
-      }
-      return acc;
-    }, "");
+  const redirects = await getJsonData(inputFilePath);
+  const finalData = redirects.reduce((accum, redirect) => {
+    const url = new URL(redirect.Slug);
+    const srcUrl = `${healthdayEnBaseUrl}${url.pathname}`;
+    const destUrl = `${url.origin}${url.pathname}`;
+    accum += `${srcUrl},${destUrl}\n`;
     return accum;
-  }, `publisher_name,total_requests,total_bytes,hit_count,date\n`);
-  await fs.writeFile(pathToOutputFile, finalAssetData);
+  }, `source,destination\n`);
+  await fs.writeFile(outputFilePath, finalData);
 }
 
 main();
