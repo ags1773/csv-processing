@@ -1,8 +1,8 @@
 const csv = require("csvtojson");
 const path = require("path");
 const fs = require("fs").promises;
-// const inputFilePath = path.join(__dirname, "../io/test-redirects.csv");
-const inputFilePath = path.join(__dirname, "../io/healthday-40k-redirects.csv");
+const inputFilePath = path.join(__dirname, "../io/test-redirects.csv");
+// const inputFilePath = path.join(__dirname, "../io/healthday-40k-redirects.csv");
 const outputFilePath = path.join(__dirname, "../io/output.csv");
 
 const healthdayEnBaseUrl = "https://www.healthday.com";
