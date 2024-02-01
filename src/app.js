@@ -1,28 +1,33 @@
 const csv = require("csvtojson");
 const path = require("path");
 const fs = require("fs").promises;
-// const inputFilePath = path.join(__dirname, "../io/test-input.csv");
-const inputFilePath = path.join(__dirname, "../io/healthday-40k-redirects.csv");
-const outputFilePath = path.join(__dirname, "../io/output.json");
+const inputFilePath = path.join(
+  __dirname,
+  "../io/Kamadenu.Del.Tag.Redirection.csv"
+);
+const _ = require("lodash");
 
-// const healthdayEnBaseUrl = "https://www.healthday.com";
+const outputFilePath = path.join(__dirname, "../io/redirects.csv");
 
 async function main() {
   const redirects = await getJsonData(inputFilePath);
-  // console.log("** redirects >> ", redirects);
-
-  const jsonOutput = redirects.reduce(
-    (acc, redirect) => {
-      const sourceUrl = redirect.source;
-      const destinationUrl = redirect.destination;
-      acc.redirectUrls.push({ sourceUrl, destinationUrl, statusCode: `NumberInt(301)` });
-      return acc;
-    },
-    {
-      redirectUrls: [],
+  console.log(`[INFO] Processing ${redirects.length} entries`);
+  const sourceUrls = [];
+  const output = redirects.reduce((acc, redirect) => {
+    if (
+      redirect.Source_URL.startsWith("/topic") &&
+      redirect.Destination_URL === "https://kamadenu.hindutamil.in"
+    ) {
+      if (sourceUrls.includes(redirect.Source_URL))
+        throw new Error(`Duplicate source URL ${redirect.Source_URL}`);
+      else sourceUrls.push(redirect.Source_URL);
+      acc += `${redirect.Source_URL},/,301,2399,kamadenu\n`;
+    } else {
+      throw new Error("Doesn't start with /topic");
     }
-  );
-  await fs.writeFile(outputFilePath, JSON.stringify(jsonOutput))
+    return acc;
+  }, "sourceUrl,destinationUrl,statusCode,boldPublisher_id,domainKey\n");
+  await fs.writeFile(outputFilePath, output);
 }
 
 main();
